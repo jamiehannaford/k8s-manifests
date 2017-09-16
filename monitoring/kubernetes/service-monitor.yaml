@@ -1,0 +1,120 @@
+# https://github.com/coreos/prometheus-operator/blob/055c3d93e3c6c927b861c5433c6c6640e5878fad/Documentation/user-guides/cluster-monitoring.md
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ServiceMonitor
+metadata:
+  name: kube-apiserver
+  namespace: rackspace-monitoring
+  labels:
+     monitor: rackspace-prometheus
+spec:
+  jobLabel: provider
+  selector:
+    matchLabels:
+      component: apiserver
+      provider: kubernetes
+  namespaceSelector:
+    matchNames:
+    - default
+  endpoints:
+  - port: https
+    interval: 15s
+    scheme: https
+    tlsConfig:
+      caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      serverName: kubernetes
+    bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+---
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ServiceMonitor
+metadata:
+  name: k8s-apps-https
+  namespace: rackspace-monitoring
+  labels:
+     monitor: rackspace-prometheus
+spec:
+  jobLabel: k8s-app
+  selector:
+    matchExpressions:
+    - {key: k8s-app, operator: Exists}
+  namespaceSelector:
+    matchNames:
+    - kube-system
+  endpoints:
+  - port: https-metrics
+    interval: 15s
+    scheme: https
+    tlsConfig:
+      caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      insecureSkipVerify: true
+    bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+---
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ServiceMonitor
+metadata:
+  name: k8s-apps-http
+  namespace: rackspace-monitoring
+  labels:
+     monitor: rackspace-prometheus
+spec:
+  jobLabel: k8s-app
+  selector:
+    matchExpressions:
+    - {key: k8s-app, operator: Exists}
+  namespaceSelector:
+    matchNames:
+    - kube-system
+  endpoints:
+  - port: http-metrics
+    interval: 15s
+  - port: http-metrics-dnsmasq
+    interval: 15s
+  - port: http-metrics-skydns
+    interval: 15s
+---
+# Setup separete monitor for node-exporte to not scrape pur namespace
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ServiceMonitor
+metadata:
+  name: node-exporter
+  namespace: rackspace-monitoring
+  labels:
+    monitor: rackspace-prometheus
+spec:
+  jobLabel: k8s-app
+  selector:
+    matchLabels:
+      k8s-app: node-exporter
+  namespaceSelector:
+    matchNames:
+    - rackspace-system
+  endpoints:
+  - port: http-metrics
+    interval: 15s
+---
+# Setup separate monitor for kubelet to avoid http endpoint
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ServiceMonitor
+metadata:
+  name: kubelet-https
+  namespace: rackspace-monitoring
+  labels:
+     monitor: rackspace-prometheus
+spec:
+  jobLabel: k8s-app
+  selector:
+    matchLabels:
+      k8s-app: kubelet
+  namespaceSelector:
+    matchNames:
+    - rackspace-system
+  endpoints:
+  - port: https-metrics
+    interval: 15s
+    scheme: https
+    tlsConfig:
+      caFile: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
+      insecureSkipVerify: true
+    bearerTokenFile: /var/run/secrets/kubernetes.io/serviceaccount/token
+  - port: cadvisor
+    interval: 30s
+    honorLabels: true

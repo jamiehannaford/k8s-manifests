@@ -1,0 +1,36 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: prometheus
+  namespace:  rackspace-monitoring
+  labels:
+    k8s-app: prometheus
+  annotations:
+    ingress.kubernetes.io/auth-realm: Prometheus Basic Authentication
+    ingress.kubernetes.io/auth-secret: basic-auth-access
+    ingress.kubernetes.io/auth-type: basic
+    ingress.kubernetes.io/rewrite-target: /
+    ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /metrics
+        backend:
+          serviceName: metrics
+          servicePort: 9090
+      - path: /alerts
+        backend:
+          serviceName: alerts
+          servicePort: 9093
+---
+apiVersion: v1
+kind: Secret
+type: Opaque
+data:
+  auth: ${BASIC_AUTH_USERPASSWORD_BASE64}
+metadata:
+  name: basic-auth-access
+  namespace: rackspace-monitoring
+  labels:
+    k8s-app: prometheus

@@ -1,0 +1,13 @@
+kind: Service
+apiVersion: v1
+metadata:
+  name: es-exporter
+  namespace: rackspace-system 
+  labels:
+    k8s-app: es-exporter
+spec:
+  selector:
+    app: p8s-elastic-exporter
+  ports:
+  - name: http-metrics
+    port: 9108

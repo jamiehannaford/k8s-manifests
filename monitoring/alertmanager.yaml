@@ -1,0 +1,14 @@
+# Example configuration for more check out https://prometheus.io/docs/alerting/configuration/
+# apply with kubectl create secret generic alert-manager --from-file=alertmanager.yaml -n rackspace-monitoring
+global:
+  resolve_timeout: 5m
+route:
+  group_by: ['job']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 12h
+  receiver: 'webhook'
+receivers:
+- name: 'webhook'
+  webhook_configs:
+  - url: 'http://alertmanagerwh:30500/'

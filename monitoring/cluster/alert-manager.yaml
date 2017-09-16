@@ -1,0 +1,17 @@
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: Alertmanager
+metadata:
+  name: alert-manager
+  namespace: rackspace-monitoring
+spec:
+  replicas: 3
+  externalUrl: http://${CLUSTER_NAME}-worker-0.pug.systems:30080/alertmanager
+  resources:
+    requests:
+      memory: 400Mi
+  storage: # as opposed to docs from https://github.com/coreos/prometheus-operator/blob/master/example/storage/persisted-prometheus.yaml
+    volumeClaimTemplate:
+      spec:
+        resources:
+          requests:
+            storage: 1Gi

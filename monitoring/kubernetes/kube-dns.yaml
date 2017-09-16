@@ -1,0 +1,18 @@
+# https://github.com/coreos/prometheus-operator/blob/055c3d93e3c6c927b861c5433c6c6640e5878fad/Documentation/user-guides/cluster-monitoring.md
+apiVersion: v1
+kind: Service
+metadata:
+  name: kube-dns-prometheus-discovery
+  namespace: kube-system
+  labels:
+    k8s-app: kube-dns
+spec:
+  selector:
+    k8s-app: kube-dns
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - name: http-metrics-dnsmasq
+    port: 10054
+    targetPort: 10054
+    protocol: TCP

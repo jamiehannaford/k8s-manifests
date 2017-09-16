@@ -1,0 +1,16 @@
+# Pulled from https://github.com/coreos/prometheus-operator/blob/master/example/user-guides/getting-started/prometheus-example-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: metrics
+  namespace: rackspace-monitoring
+  labels:
+    k8s-app: prometheus
+spec:
+  selector:
+    prometheus: "prometheus"
+  ports:
+  - port: 9090
+    protocol: TCP
+    targetPort: web
+

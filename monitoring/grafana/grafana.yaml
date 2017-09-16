@@ -1,0 +1,58 @@
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: rackspace-system
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        k8s-app: grafana
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: k8s-app
+                operator: In
+                values:
+                - grafana
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - name: grafana
+        image: ${GRAFANA_IMAGE}
+        ports:
+          - containerPort: 3000
+            protocol: TCP
+        volumeMounts:
+        - mountPath: /var
+          name: grafana-storage
+        env:
+        - name: GRAFANA_PORT
+          value: "3000"
+        - name: GF_AUTH_BASIC_ENABLED
+          value: "false"
+        - name: GF_AUTH_ANONYMOUS_ENABLED
+          value: "true"
+        - name: GF_AUTH_ANONYMOUS_ORG_ROLE
+          value: Admin
+        - name: GF_SERVER_ROOT_URL
+          value: /monitoring/
+      - name: grafana-import-dashboards
+        image: ${ALPINE_IMAGE}
+        command: ["/bin/sh", "import.sh"]
+        workingDir: /opt/dashboards
+        volumeMounts:
+        - name: config-volume
+          mountPath: /opt/dashboards
+      volumes:
+      - name: config-volume
+        configMap:
+          name: grafana-dashboards
+      - name: grafana-storage
+        persistentVolumeClaim:
+          claimName: grafana

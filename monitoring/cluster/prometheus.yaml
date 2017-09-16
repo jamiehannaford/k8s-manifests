@@ -1,0 +1,78 @@
+# Pulled from https://github.com/coreos/prometheus-operator/blob/master/example/user-guides/getting-started/prometheus-example.yaml
+# * Added ClusterRoleBinding to work with RBAC
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus
+  namespace: rackspace-monitoring
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: prometheus
+rules:
+- apiGroups: [""]
+  resources:
+  - nodes
+  - services
+  - endpoints
+  - pods
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources:
+  - configmaps
+  verbs: ["get"]
+- nonResourceURLs: ["/metrics"]
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus
+  namespace:  rackspace-monitoring
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus
+subjects:
+- kind: ServiceAccount
+  name: prometheus
+  namespace:  rackspace-monitoring
+---
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: Prometheus
+metadata:
+  name: prometheus
+  namespace:  rackspace-monitoring
+spec:
+  replicas: 2
+  externalUrl: http://${CLUSTER_NAME}-worker-0.pug.systems:30080/metrics
+  alerting:
+    alertmanagers:
+    - namespace: rackspace-monitoring
+      name: alertmanager-alert-manager
+      port: web
+  serviceMonitorSelector:
+    matchLabels:
+      # monitor any service monitor with label rackspace-prometheus
+      # this is something the user can add to get monitored
+      monitor: rackspace-prometheus
+      # potentially have different labels for system apps
+  version: v1.7.1
+  serviceAccountName: prometheus
+  resources:
+    requests:
+      memory: 800Mi # this needs most certainly be bumped up into the gigs
+  ruleSelector:
+    matchLabels:
+      role: prometheus-rulefiles
+      prometheus: prometheus
+  storage: # as opposed to docs from https://github.com/coreos/prometheus-operator/blob/master/example/storage/persisted-prometheus.yaml
+    volumeClaimTemplate:
+      metadata:
+        annotations:
+          annotation1: prometheus
+      spec:
+        resources:
+          requests:
+            storage: 1Gi

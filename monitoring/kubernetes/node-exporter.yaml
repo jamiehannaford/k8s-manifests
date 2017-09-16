@@ -1,0 +1,68 @@
+# https://github.com/coreos/prometheus-operator/blob/055c3d93e3c6c927b861c5433c6c6640e5878fad/Documentation/user-guides/cluster-monitoring.md
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: node-exporter
+  namespace: rackspace-system
+spec:
+  template:
+    metadata:
+      labels:
+        app: node-exporter
+      name: node-exporter
+    spec:
+      hostPID: true
+      containers:
+      - name: node-exporter
+        image: ${NODE_EXPORTER_IMAGE}
+        args:
+        - "-collector.procfs=/host/proc"
+        - "-collector.sysfs=/host/sys"
+        - "-collector.filesystem.ignored-mount-points=${NODE_EXPORTER_REGEX}"
+        - "-collectors.enabled=diskstats,edac,filefd,filesystem,hwmon,loadavg,meminfo,stat,time,uname,vmstat"
+        ports:
+        - containerPort: 9100
+          hostPort: 9100
+          name: scrape
+        resources:
+          requests:
+            memory: 30Mi
+            cpu: 100m
+          limits:
+            memory: 50Mi
+            cpu: 200m
+        volumeMounts:
+        - name: proc
+          readOnly:  true
+          mountPath: /host/proc
+        - name: sys
+          readOnly: true
+          mountPath: /host/sys
+      volumes:
+      - name: proc
+        hostPath:
+          path: /proc
+      - name: sys
+        hostPath:
+          path: /sys
+      tolerations:
+      - key: "node-role.kubernetes.io/master"
+        operator: "Exists"
+        effect: "NoSchedule"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: node-exporter
+  name: node-exporter
+  namespace: rackspace-system
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - name: http-metrics
+    port: 9100
+    protocol: TCP
+  selector:
+    app: node-exporter
