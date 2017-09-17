@@ -1,0 +1,33 @@
+[Unit]
+Description=etcd
+Documentation=https://github.com/coreos/etcd
+Conflicts=etcd.service
+Conflicts=etcd2.service
+
+[Service]
+Type=notify
+Restart=always
+RestartSec=5s
+LimitNOFILE=40000
+TimeoutStartSec=0
+
+ExecStart=/usr/bin/etcd --name my-etcd-1 \
+    --data-dir /var/lib/etcd \
+    --listen-client-urls https://174.143.130.17:2379 \
+    --advertise-client-urls https://174.143.130.17:2379 \
+    --listen-peer-urls https://174.143.130.17:2380 \
+    --initial-advertise-peer-urls https://174.143.130.17:2380 \
+    --cert-file=/root/server1.crt \
+    --key-file=/root/server1.key.insecure \
+    --client-cert-auth \
+    --trusted-ca-file=/root/server1.ca.crt \
+    --peer-cert-file=/root/server1.crt \
+    --peer-key-file=/root/server1.key.insecure \
+    --peer-client-cert-auth \
+    --peer-trusted-ca-file=/root/server1.ca.crt \
+    --initial-cluster my-etcd-1=https://174.143.130.17:2380,my-etcd-2=https://174.143.130.210:2380,my-etcd-3=https://104.239.135.23:2380 \
+    --initial-cluster-token my-etcd-token \
+    --initial-cluster-state new
+
+[Install]
+WantedBy=multi-user.target
