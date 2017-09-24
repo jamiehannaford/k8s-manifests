@@ -2,8 +2,14 @@
 
 ```bash
 apt-get update && apt-get install -y docker.io
-docker run --rm -v /usr/local/bin:/go/bin go get -u github.com/cloudflare/cfssl/cmd/cfssl
-docker run --rm -v /usr/local/bin:/go/bin go get -u github.com/cloudflare/cfssl/cmd/cfssljson
+docker run --rm -v /usr/local/bin:/go/bin golang go get -u github.com/cloudflare/cfssl/cmd/cfssl
+docker run --rm -v /usr/local/bin:/go/bin golang go get -u github.com/cloudflare/cfssl/cmd/cfssljson
+```
+
+## Download binaries:
+
+```bash
+./install-bins.sh
 ```
 
 ## Set envs
@@ -28,18 +34,18 @@ export KUBERNETES_PUBLIC_ADDRESS=localhost
 ./gen-kubeconfigs.sh
 ```
 
-## Download binaries:
+## Move etcd certs
 
 ```bash
-wget https://dl.k8s.io/v1.6.2/kubernetes-server-linux-amd64.tar.gz
-tar xvf kubernetes-server-linux-amd64.tar.gz
-cd kubernetes/server/bin
-cp kube-apiserver kube-controller-manager kube-scheduler kubelet kube-proxy kubectl /usr/bin
+cp ... /etc/kubernetes/tls
 ```
 
 ## Edit systemd files
 
 - etcd server in kube-apiserver 
+- etcd TLS cert paths
+- ensure kubelet does not need `--hostname-override` (needs to match $HOSTNAME)
+- ensure kubelet kubeconfig is set to /etc/kubernetes/tls/$HOSTNAME.kubeconfig
 
 ## Move systemd files 
 
@@ -57,3 +63,8 @@ systemctl start kube-controller-manager
 systemctl start kube-proxy
 systemctl start kubelet
 ```
+
+## install CNI
+
+export kubever=$(kubectl version | base64 | tr -d '\n')
+kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$kubever"

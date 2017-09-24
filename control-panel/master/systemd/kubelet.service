@@ -8,16 +8,15 @@ ExecStart=/usr/bin/kubelet \
   --cluster-dns=10.32.0.10 \
   --cluster-domain=cluster.local \
   --enable-custom-metrics \
-  --hostname-override=worker-0 \
-  --kubeconfig=/etc/kubernetes/kubelet.conf \
+  --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \
   --network-plugin=cni \
   --pod-cidr=10.244.0.0/16 \
   --register-node=true \
-  --register-schedulable=false \
+  --register-with-taints=node-role.kubernetes.io/master=true:NoSchedule \
   --require-kubeconfig \
   --runtime-request-timeout=10m \
-  --tls-cert-file=/etc/kubernetes/tls/kubelet.crt \
-  --tls-private-key-file=/etc/kubernetes/tls/kubelet.key \
+  --tls-cert-file=/etc/kubernetes/tls/kubelet.pem \
+  --tls-private-key-file=/etc/kubernetes/tls/kubelet-key.pem \
   --v=2
 Restart=on-failure
 RestartSec=5

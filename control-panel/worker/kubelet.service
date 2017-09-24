@@ -1,0 +1,22 @@
+[Unit]
+Description=Kubernetes Kubelet
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+
+[Service]
+ExecStart=/usr/bin/kubelet \
+  --allow-privileged=true \
+  --cluster-dns=10.32.0.10 \
+  --cluster-domain=cluster.local \
+  --enable-custom-metrics \
+  --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \
+  --network-plugin=cni \
+  --pod-cidr=10.244.0.0/16 \
+  --register-node=true \
+  --require-kubeconfig \
+  --runtime-request-timeout=10m \
+  --v=2
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

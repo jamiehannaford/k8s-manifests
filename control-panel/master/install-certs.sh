@@ -66,6 +66,8 @@ cfssl gencert \
   -profile=kubernetes \
   admin-csr.json | cfssljson -bare admin
 
+echo "Generating kubelet"
+
 cat > ${HOSTNAME}-csr.json <<EOF
 {
   "CN": "system:node:${HOSTNAME}",
@@ -91,7 +93,7 @@ cfssl gencert \
   -config=ca-config.json \
   -hostname=${HOSTNAME} \
   -profile=kubernetes \
-  ${HOSTNAME}-csr.json | cfssljson -bare ${HOSTNAME}
+  kubelet-csr.json | cfssljson -bare kubelet
 
 echo "Generating kube-proxy certs"
 
