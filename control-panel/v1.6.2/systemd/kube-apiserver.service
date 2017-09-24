@@ -1,0 +1,35 @@
+[Unit]
+Description=Kubernetes API Server
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+
+[Service]
+ExecStart=/usr/bin/kube-apiserver \
+  --admission-control=NamespaceLifecycle,LimitRanger,ServiceAccount,DefaultStorageClass,ResourceQuota \
+  --allow-privileged=true \
+  --authorization-mode=RBAC \
+  --bind-address=0.0.0.0 \
+  --client-ca-file=/etc/kubernetes/tls/ca.pem \
+  --etcd-cafile=/etc/kubernetes/tls/etcd-ca.crt \
+  --etcd-certfile=/etc/kubernetes/tls/etcd-client.crt \
+  --etcd-keyfile=/etc/kubernetes/tls/etcd-client.key \
+  --etcd-servers=https://104.130.136.248:2379 \
+  --event-ttl=1h \
+  --insecure-bind-address=0.0.0.0 \
+  --kubelet-certificate-authority=/etc/kubernetes/tls/ca.pem \
+  --kubelet-client-certificate=/etc/kubernetes/tls/kubernetes.pem \
+  --kubelet-client-key=/etc/kubernetes/tls/kubernetes-key.pem \
+  --kubelet-https=true \
+  --runtime-config=rbac.authorization.k8s.io/v1alpha1 \
+  --service-account-key-file=/etc/kubernetes/tls/ca-key.pem \
+  --service-cluster-ip-range=10.32.0.0/24 \
+  --service-node-port-range=30000-32767 \
+  --storage-backend=etcd2 \
+  --tls-ca-file=/etc/kubernetes/tls/ca.pem \
+  --tls-cert-file=/etc/kubernetes/tls/kubernetes.pem \
+  --tls-private-key-file=/etc/kubernetes/tls/kubernetes-key.pem \
+  --v=2
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
