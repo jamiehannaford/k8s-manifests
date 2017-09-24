@@ -6,7 +6,7 @@ metadata:
   labels:
     k8s-app: ingress-controller
 spec:
-  replicas: 2
+  replicas: 1
   template:
     metadata:
       labels:
@@ -18,16 +18,6 @@ spec:
       # like with kubeadm
       hostNetwork: true
       serviceAccountName: nginx-ingress-serviceaccount
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-          - labelSelector:
-              matchExpressions:
-              - key: k8s-app
-                operator: In
-                values:
-                - ingress-controller
-            topologyKey: kubernetes.io/hostname
       terminationGracePeriodSeconds: 60
       containers:
       - image: gcr.io/google_containers/nginx-ingress-controller:0.9.0-beta.11
