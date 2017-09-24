@@ -68,7 +68,7 @@ cfssl gencert \
 
 echo "Generating kubelet"
 
-cat > ${HOSTNAME}-csr.json <<EOF
+cat > kubelet-csr.json <<EOF
 {
   "CN": "system:node:${HOSTNAME}",
   "key": {

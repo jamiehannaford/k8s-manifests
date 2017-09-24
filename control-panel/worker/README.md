@@ -3,21 +3,23 @@
 Ensure docker is set up. Then:
 
 ```bash
-git clone https://github.com/jamiehannaford/k8s-manifests
-cd k8s-manifests/control-panel/worker
+docker run --rm -v /usr/local/bin:/go/bin golang go get -u github.com/cloudflare/cfssl/cmd/cfssl
+docker run --rm -v /usr/local/bin:/go/bin golang go get -u github.com/cloudflare/cfssl/cmd/cfssljson
+./install-bins.sh
 ```
 
 ## Certs
 
 ```bash
 mkdir -p /etc/kubernetes/tls
-cp .../* /etc/kubernetes/tls
+cp .../ca.pem /etc/kubernetes/tls
+cp .../ca-key.pem /etc/kubernetes/tls
 ```
 
-## Save kubeconfig
-
-```bash
-cp kubelet.kubeconfig /etc/kubernetes
+```
+export HOSTNAME=worker-1
+export MASTER_URL=1.2.3.4
+./create-creds.sh
 ```
 
 ## Systemd
