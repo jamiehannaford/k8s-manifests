@@ -1,9 +1,9 @@
 ## Install deps:
 
 ```bash
-apt-get update && apt-get install -y docker.io
-docker run --rm -v /usr/local/bin:/go/bin golang go get -u github.com/cloudflare/cfssl/cmd/cfssl
-docker run --rm -v /usr/local/bin:/go/bin golang go get -u github.com/cloudflare/cfssl/cmd/cfssljson
+git clone https://github.com/jamiehannaford/k8s-manifests
+cd control-panel/master
+./install-bins.sh
 ```
 
 ## Download binaries:
