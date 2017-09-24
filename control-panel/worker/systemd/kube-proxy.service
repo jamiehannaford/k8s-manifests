@@ -4,7 +4,7 @@ Documentation=https://github.com/GoogleCloudPlatform/kubernetes
 
 [Service]
 ExecStart=/usr/bin/kube-proxy \
-  --cluster-cidr=10.200.0.0/16 \
+  --cluster-cidr=10.244.0.0/16 \
   --kubeconfig=/etc/kubernetes/kube-proxy.kubeconfig \
   --proxy-mode=iptables \
   --v=2

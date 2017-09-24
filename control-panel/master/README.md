@@ -68,3 +68,15 @@ systemctl start kubelet
 
 export kubever=$(kubectl version | base64 | tr -d '\n')
 kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$kubever"
+
+## install flannel
+
+```bash
+kubectl apply -f https://raw.githubusercontent.com/coreos/flannel/master/Documentation/kube-flannel.yml
+```
+
+## install dns
+
+```bash
+kubectl create -f https://storage.googleapis.com/kubernetes-the-hard-way/kube-dns.yaml
+```
